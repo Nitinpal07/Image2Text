@@ -19,9 +19,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.speech.tts.TextToSpeech;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,6 +36,8 @@ import com.google.android.gms.vision.text.TextRecognizer;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int CAMERA_REQUEST_CODE =200;
@@ -42,7 +47,9 @@ public class MainActivity extends AppCompatActivity {
 
     EditText mResult;
     ImageView mPreview;
+    Button mStart,mStop;
 
+    TextToSpeech mTTs;
     String[] cameraPermission;
     String[] storagePermission;
     Uri image_uri;
@@ -56,10 +63,56 @@ public class MainActivity extends AppCompatActivity {
         mResult =findViewById(R.id.result);
         mPreview =findViewById(R.id.imagepreview);
 
+        mStart =findViewById(R.id.speak_btn);
+        mStop =findViewById(R.id.stop_btn);
 
         cameraPermission =new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermission =new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
+
+        mTTs =new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                //if no error set language
+                if(i != TextToSpeech.ERROR){
+                    mTTs.setLanguage(Locale.US);
+                }
+                else{
+                    Toast.makeText(MainActivity.this, "ERROR", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        mStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //get text from EditText
+                String tospeak =mResult.getText().toString().trim();
+                if(tospeak.equals("")){
+                    Toast.makeText(MainActivity.this, "Empty", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(MainActivity.this, tospeak, Toast.LENGTH_SHORT).show();
+                    //speak the text
+                    mTTs.speak(tospeak,TextToSpeech.QUEUE_FLUSH,null);
+                }
+
+            }
+        });
+
+        mStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mTTs.isSpeaking()){
+                    mTTs.stop();
+                    Toast.makeText(MainActivity.this, "Stopped!!!", Toast.LENGTH_SHORT).show();
+
+                }
+                else{
+                    Toast.makeText(MainActivity.this, "Not Speaking", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
 
@@ -268,5 +321,14 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, ""+eror, Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    protected void onPause() {
+        if(mTTs !=null || mTTs.isSpeaking()){
+            mTTs.stop();
+
+        }
+        super.onPause();
     }
 }
