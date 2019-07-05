@@ -133,9 +133,19 @@ public class MainActivity extends AppCompatActivity {
             showImageImportDialog();
         }
         if(id==R.id.settings){
-
+            Toast.makeText(this, "You will get this feature soon!", Toast.LENGTH_SHORT).show();
         }
+        if(id==R.id.share){
+            share();
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    private void share() {
+        Intent intent= new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        startActivity(intent);
     }
 
     private void showImageImportDialog() {

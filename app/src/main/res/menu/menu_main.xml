@@ -10,4 +10,14 @@
     <item
         android:id="@+id/settings"
         android:title="@string/settings"/>
+    <item
+        android:id="@+id/share"
+        android:title="@string/share"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_action_share"/>
+    <item
+        android:id="@+id/about"
+        android:title="@string/aboutus"
+
+        />
 </menu>
